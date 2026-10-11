@@ -5,9 +5,14 @@ Juega al ajedrez contra un bot en el navegador.
 - Eliges color (blancas, negras o al azar).
 - Reloj de 10 minutos por jugador más 5 segundos por jugada.
 - Puedes rendirte o empezar una partida nueva.
-- Al terminar, la partida se guarda en `games/partida_AAAA-MM-DD_HHMM.pgn`.
+- Al terminar, la partida se guarda en `games/partida_AAAA-MM-DD_HHMM.pgn`
+  y el jugador la puede descargar.
+- Cada navegador juega su propia partida, así que pueden jugar varias personas a la vez.
 
 El bot es `bot/vicescacs.py` (ver [bot/README.md](bot/README.md)).
+
+Para tenerlo en una Raspberry Pi accesible desde internet, sigue
+[docs/raspberry-pi.md](docs/raspberry-pi.md).
 
 ## Instalación en Windows
 
@@ -55,10 +60,14 @@ Variables de entorno opcionales:
 - **El servidor manda.** Valida las jugadas, lleva los relojes y decide cuándo
   termina la partida. La página solo dibuja lo que le envía el servidor por
   WebSocket (`/ws`).
-- **Una partida a la vez.** Si recargas la página, sigues en la misma partida.
-  Empezar una nueva durante una partida cuenta como abandono.
-- **El bot corre en otro proceso**, así el servidor y los relojes siguen
-  funcionando mientras piensa. Para cada jugada tiene
+- **Una partida por navegador.** La página guarda el identificador de su
+  partida, así que al recargar sigues en la misma. Empezar una nueva durante
+  una partida cuenta como abandono. Una partida abandonada termina sola cuando
+  al jugador se le acaba el reloj.
+- **Límites:** como mucho 4 partidas en curso a la vez, y 2 por IP
+  (`MAX_ACTIVE_GAMES` y `MAX_ACTIVE_GAMES_PER_IP` en `server/manager.py`).
+- **Cada partida tiene su propio proceso de bot**, así el servidor y los
+  relojes siguen funcionando mientras piensa. Para cada jugada tiene
   `min(tiempo restante / 30 + 5, tiempo restante − 1)` segundos.
 - **Final de partida:** jaque mate, rey ahogado, material insuficiente, triple
   repetición, regla de los 50 movimientos, tiempo agotado (tablas si el rival
@@ -68,11 +77,12 @@ Variables de entorno opcionales:
 |---|---|
 | `server/game.py` | Reglas de la partida: turnos, final, resultado |
 | `server/clock.py` | Reloj con incremento |
-| `server/manager.py` | Partida en curso, turno del bot, caída de bandera |
+| `server/manager.py` | Partidas en curso, turno del bot, caída de bandera, límites |
 | `server/bot_runner.py` | Ejecuta `bot/vicescacs.py` en otro proceso |
 | `server/pgn_writer.py` | Genera el `.pgn` |
 | `server/app.py` | Servidor web y WebSocket |
 | `static/` | Página web |
+| `scripts/`, `deploy/` | Instalación como servicio en la Raspberry Pi |
 
 ## Tests
 

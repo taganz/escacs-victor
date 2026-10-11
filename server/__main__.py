@@ -14,7 +14,8 @@ def main() -> None:
     parser.add_argument("--port", type=int, default=8000)
     args = parser.parse_args()
     logging.basicConfig(level=logging.INFO, format="%(asctime)s %(levelname)s %(name)s: %(message)s")
-    uvicorn.run(create_app(), host=args.host, port=args.port)
+    # Our messages are tiny; refuse big ones.
+    uvicorn.run(create_app(), host=args.host, port=args.port, ws_max_size=16 * 1024)
 
 
 if __name__ == "__main__":

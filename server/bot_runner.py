@@ -103,13 +103,6 @@ class BotRunner:
         return self.kind == KIND_RANDOM
 
     def start(self) -> None:
-        if self.provisional:
-            log.warning(
-                "%s no define choose_move(board, time_limit): se usa un bot provisional que juega al azar",
-                self.bot_file,
-            )
-        else:
-            log.info("Bot: %s", self.bot_file)
         # "spawn" is what Windows uses, so the PC and the Raspberry Pi behave the same.
         self._pool = multiprocessing.get_context("spawn").Pool(processes=1)
         self._pool.apply_async(
