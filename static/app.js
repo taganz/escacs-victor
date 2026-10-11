@@ -20,9 +20,29 @@ let shownResultFor = null; // so the result is announced only once
 
 // --- Connection -----------------------------------------------------------
 
+// The id of this browser's game, so a reload gets back to it.
+const GAME_KEY = "escacs-victor-game";
+
+function storedGameId() {
+  try {
+    return localStorage.getItem(GAME_KEY) || "";
+  } catch {
+    return "";
+  }
+}
+
+function storeGameId(id) {
+  try {
+    if (id) localStorage.setItem(GAME_KEY, id);
+  } catch {
+    // Without storage a reload just starts over.
+  }
+}
+
 function connect() {
   const proto = location.protocol === "https:" ? "wss" : "ws";
-  socket = new WebSocket(`${proto}://${location.host}/ws`);
+  const game = encodeURIComponent(storedGameId());
+  socket = new WebSocket(`${proto}://${location.host}/ws?game=${game}`);
   socket.onmessage = (event) => onMessage(JSON.parse(event.data));
   socket.onclose = () => {
     setStatus("Sin conexión con el servidor. Reintentando…");
@@ -37,6 +57,7 @@ function send(message) {
 function onMessage(message) {
   if (message.type === "state") {
     state = message;
+    storeGameId(message.game_id);
     receivedAt = performance.now();
     pending = null;
     selected = null;
@@ -244,7 +265,17 @@ function renderResult() {
   else headline = `${g.result} · Gana el Bot`;
   $("result-score").textContent = headline;
   $("result-reason").textContent = g.reason || "";
-  $("result-file").textContent = g.pgn_file ? `Guardada en games/${g.pgn_file}` : "";
+  $("result-file").textContent = g.pgn_file ? `Guardada en el servidor como ${g.pgn_file}` : "";
+  const link = $("download");
+  link.hidden = !state.pgn;
+  if (state.pgn) {
+    if (link.dataset.pgn !== state.pgn) {
+      if (link.href) URL.revokeObjectURL(link.href);
+      link.href = URL.createObjectURL(new Blob([state.pgn], { type: "application/x-chess-pgn" }));
+      link.dataset.pgn = state.pgn;
+    }
+    link.download = g.pgn_file || "partida.pgn";
+  }
   const key = g.fen + g.result;
   if (shownResultFor !== key) {
     shownResultFor = key;

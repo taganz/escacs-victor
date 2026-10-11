@@ -1,0 +1,19 @@
+# Plantilla: scripts/install_pi.sh sustituye @USER@, @DIR@, @HOST@ y @PORT@.
+[Unit]
+Description=Escacs Victor (ajedrez contra el bot)
+After=network-online.target
+Wants=network-online.target
+
+[Service]
+User=@USER@
+WorkingDirectory=@DIR@
+ExecStart=@DIR@/.venv/bin/python -m server --host @HOST@ --port @PORT@
+Environment=PYTHONUNBUFFERED=1
+Restart=on-failure
+RestartSec=3
+NoNewPrivileges=true
+ProtectSystem=full
+PrivateTmp=true
+
+[Install]
+WantedBy=multi-user.target

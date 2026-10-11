@@ -37,19 +37,23 @@ def build_pgn(game: Game) -> chess.pgn.Game:
     return pgn
 
 
-def unique_path(folder: Path, stem: str) -> Path:
-    """`folder/stem.pgn`, or `stem_2.pgn`, `stem_3.pgn`... if it already exists."""
-    path = folder / f"{stem}.pgn"
-    n = 2
-    while path.exists():
-        path = folder / f"{stem}_{n}.pgn"
-        n += 1
-    return path
+def pgn_text(game: Game) -> str:
+    return str(build_pgn(game)) + "\n"
 
 
 def save_pgn(game: Game, folder: Path) -> Path:
+    """Write the game to `folder/partida_AAAA-MM-DD_HHMM.pgn`, adding
+    `_2`, `_3`... if that name is taken."""
     folder.mkdir(parents=True, exist_ok=True)
-    path = unique_path(folder, game.started.strftime("partida_%Y-%m-%d_%H%M"))
-    text = str(build_pgn(game))
-    path.write_text(text + "\n", encoding="utf-8", newline="\n")
-    return path
+    stem = game.started.strftime("partida_%Y-%m-%d_%H%M")
+    text = pgn_text(game)
+    n = 1
+    while True:
+        path = folder / (f"{stem}.pgn" if n == 1 else f"{stem}_{n}.pgn")
+        try:
+            # "x" fails if the file exists, so two games ending at once never share a file.
+            with path.open("x", encoding="utf-8", newline="\n") as f:
+                f.write(text)
+            return path
+        except FileExistsError:
+            n += 1
