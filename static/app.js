@@ -62,6 +62,7 @@ function onMessage(message) {
     pending = null;
     selected = null;
     render();
+    offerFenFromUrl();
   } else if (message.type === "error" || message.type === "notice") {
     toast(message.message);
   }
@@ -438,6 +439,24 @@ $("start-fen").addEventListener("keydown", (e) => {
 $("color-dialog").addEventListener("cancel", (e) => {
   if (!game()) e.preventDefault();
 });
+
+// A link like /?fen=4k3/8/8/8/8/8/4P3/4K3_b_-_-_0_30 fills the FEN box of the
+// new-game dialog. Underscores stand for spaces, as in lichess links.
+let urlFen = new URLSearchParams(location.search).get("fen");
+if (urlFen) {
+  $("start-fen").value = urlFen.replaceAll("_", " ").trim();
+  // So a reload goes back to the game instead of offering this one again.
+  history.replaceState(null, "", location.pathname);
+}
+
+function offerFenFromUrl() {
+  if (!urlFen) return;
+  urlFen = null;
+  if ($("color-dialog").open) return;
+  const g = game();
+  if (g && g.status === "playing" && !confirm("Este enlace empieza una partida nueva desde otra posición. La partida en curso contará como abandono. ¿Empezarla?")) return;
+  openColorDialog(true);
+}
 
 $("btn-new").addEventListener("click", () => {
   const g = game();
