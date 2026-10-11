@@ -1,7 +1,7 @@
 import chess
 import pytest
 
-from server.game import Game, GameError, parse_color_choice
+from server.game import Game, GameError, parse_color_choice, parse_fen
 from tests.helpers import FakeTime, make_clock, play_sans
 
 
@@ -102,3 +102,30 @@ def test_fifty_move_rule():
     game.play(chess.Move.from_uci("a2a3"), chess.WHITE)
     assert game.result == "1/2-1/2"
     assert game.reason == "Regla de los 50 movimientos"
+
+
+def test_parse_fen():
+    assert parse_fen("") is None
+    assert parse_fen("   ") is None
+    board = parse_fen("  4k3/8/8/8/8/8/4P3/4K3   b - - 0 30 ")
+    assert board.turn == chess.BLACK and board.fullmove_number == 30
+    with pytest.raises(GameError, match="FEN no válido"):
+        parse_fen("esto no es un fen")
+    with pytest.raises(GameError, match="no es legal"):
+        parse_fen("4k3/8/8/8/8/8/8/4K2K w - - 0 1")  # two white kings
+    with pytest.raises(GameError, match="ya ha terminado"):
+        parse_fen("rnb1kbnr/pppp1ppp/8/4p3/6Pq/5P2/PPPPP2P/RNBQKBNR w KQkq - 1 3")
+
+
+def test_game_from_fen_starts_black_clock():
+    board = parse_fen("4k3/8/8/8/8/8/4P3/4K3 b - - 0 30")
+    game = Game(chess.WHITE, clock=make_clock(), board=board)
+    game.start()
+    assert game.clock.running == chess.BLACK
+    state = game.state()
+    assert state["turn"] == "black"
+    assert state["legal_moves"] == []
+    assert state["first_move_number"] == 30
+    assert state["first_turn"] == "black"
+    play_sans(game, ["Kd7", "e4"])
+    assert game.state()["first_move_number"] == 30

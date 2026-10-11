@@ -4,7 +4,7 @@ The page opens /ws?game=<id> with the id of the game it was playing, if
 any, to get back to it.
 
 Messages from the browser:
-    {"type": "new_game", "color": "white" | "black" | "random"}
+    {"type": "new_game", "color": "white" | "black" | "random", "fen": optional}
     {"type": "move", "uci": "e2e4"}
     {"type": "resign"}
 
@@ -102,7 +102,9 @@ def create_app(
                 kind = message.get("type") if isinstance(message, dict) else None
                 try:
                     if kind == "new_game":
-                        new = await manager.new_game(str(message.get("color")), ip, session)
+                        new = await manager.new_game(
+                            str(message.get("color")), ip, session, str(message.get("fen") or "")
+                        )
                         if session is not None:
                             session.clients.discard(websocket)
                         session = new

@@ -222,11 +222,15 @@ function renderMoves() {
   const g = game();
   const list = $("moves");
   list.replaceChildren();
-  const moves = g ? g.moves : [];
+  // From a FEN with black to move, the first row starts with "…".
+  const skip = g && g.first_turn === "black" ? 1 : 0;
+  const moves = g ? Array(skip).fill("…").concat(g.moves) : [];
+  const first = g ? g.first_move_number : 1;
+  const latest = g && g.moves.length ? moves.length - 1 : -1;
   for (let i = 0; i < moves.length; i += 2) {
     const li = document.createElement("li");
-    li.append(span("num", `${i / 2 + 1}.`), span(i === moves.length - 1 ? "latest" : "", moves[i]),
-      span(i + 1 === moves.length - 1 ? "latest" : "", moves[i + 1] || ""));
+    li.append(span("num", `${i / 2 + first}.`), span(i === latest ? "latest" : "", moves[i]),
+      span(i + 1 === latest ? "latest" : "", moves[i + 1] || ""));
     list.appendChild(li);
   }
   list.scrollTop = list.scrollHeight;
@@ -420,10 +424,15 @@ function openColorDialog(cancellable) {
 $("color-dialog").addEventListener("close", () => {
   const choice = $("color-dialog").returnValue;
   if (["white", "black", "random"].includes(choice)) {
-    send({ type: "new_game", color: choice });
+    send({ type: "new_game", color: choice, fen: $("start-fen").value.trim() });
   } else if (!game()) {
     openColorDialog(false);
   }
+});
+
+// Enter in the FEN box would pick the first color button.
+$("start-fen").addEventListener("keydown", (e) => {
+  if (e.key === "Enter") e.preventDefault();
 });
 
 $("color-dialog").addEventListener("cancel", (e) => {

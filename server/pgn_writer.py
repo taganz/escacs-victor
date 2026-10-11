@@ -18,6 +18,8 @@ def format_clock(seconds: float) -> str:
 
 def build_pgn(game: Game) -> chess.pgn.Game:
     pgn = chess.pgn.Game()
+    # Adds the SetUp and FEN tags if the game did not start from the usual position.
+    pgn.setup(game.board.root())
     pgn.headers["Event"] = EVENT
     pgn.headers["Site"] = SITE
     pgn.headers["Date"] = game.started.strftime("%Y.%m.%d")

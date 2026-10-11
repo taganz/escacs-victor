@@ -41,10 +41,11 @@ class Game:
         user_color: chess.Color,
         clock: Optional[ChessClock] = None,
         started: Optional[datetime] = None,
+        board: Optional[chess.Board] = None,
     ):
         self.user_color = user_color
         self.bot_color = not user_color
-        self.board = chess.Board()
+        self.board = board or chess.Board()
         self.clock = clock or ChessClock(INITIAL_SECONDS, INCREMENT_SECONDS)
         self.started = started or datetime.now()
         self.sans: list[str] = []
@@ -68,7 +69,7 @@ class Game:
         return USER_NAME if self.user_color == chess.BLACK else BOT_NAME
 
     def start(self) -> None:
-        self.clock.start(chess.WHITE)
+        self.clock.start(self.board.turn)
 
     def is_turn_of(self, color: chess.Color) -> bool:
         return not self.over and self.board.turn == color
@@ -137,6 +138,7 @@ class Game:
     def state(self) -> dict:
         """Everything the browser needs to draw the game."""
         board = self.board
+        root = board.root()
         last = board.move_stack[-1].uci() if board.move_stack else None
         check = None
         if board.is_check():
@@ -158,6 +160,9 @@ class Game:
                 "running": color_name(running) if running is not None else None,
             },
             "moves": list(self.sans),
+            # Where the move list starts, for games from a FEN.
+            "first_move_number": root.fullmove_number,
+            "first_turn": color_name(root.turn),
             "last_move": last,
             "check": check,
             "legal_moves": legal,
@@ -176,3 +181,20 @@ def parse_color_choice(choice: str, rand: Callable[[], float]) -> chess.Color:
     if choice == "random":
         return chess.WHITE if rand() < 0.5 else chess.BLACK
     raise GameError("Color no válido")
+
+
+def parse_fen(text: str) -> Optional[chess.Board]:
+    """The starting position: None for the usual one, or the board for `text`.
+    Raises GameError if it is not a valid position to play from."""
+    text = " ".join(text.split())
+    if not text:
+        return None
+    try:
+        board = chess.Board(text)
+    except ValueError:
+        raise GameError("FEN no válido")
+    if not board.is_valid():
+        raise GameError("La posición del FEN no es legal")
+    if board.is_game_over():
+        raise GameError("En la posición del FEN la partida ya ha terminado")
+    return board

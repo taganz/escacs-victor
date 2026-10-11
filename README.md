@@ -3,6 +3,7 @@
 Juega al ajedrez contra un bot en el navegador.
 
 - Eliges color (blancas, negras o al azar).
+- Opcionalmente, empiezas desde una posición pegando su FEN.
 - Reloj de 10 minutos por jugador más 5 segundos por jugada.
 - Puedes rendirte o empezar una partida nueva.
 - Al terminar, la partida se guarda en `games/partida_AAAA-MM-DD_HHMM.pgn`

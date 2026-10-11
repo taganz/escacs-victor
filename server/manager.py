@@ -27,6 +27,7 @@ from server.game import (
     Game,
     GameError,
     parse_color_choice,
+    parse_fen,
 )
 from server.pgn_writer import pgn_text, save_pgn
 
@@ -223,9 +224,13 @@ class GameManager:
     def active_sessions(self) -> list[GameSession]:
         return [s for s in self.sessions.values() if s.active]
 
-    async def new_game(self, choice: str, ip: str, previous: Optional[GameSession] = None) -> GameSession:
-        """Start a game. `previous` is the game this browser was playing, if any."""
+    async def new_game(
+        self, choice: str, ip: str, previous: Optional[GameSession] = None, fen: str = ""
+    ) -> GameSession:
+        """Start a game, from the position in `fen` if not empty. `previous`
+        is the game this browser was playing, if any."""
         color = parse_color_choice(choice, self.rand)
+        board = parse_fen(fen)
         if previous is not None and previous.active:
             await previous.resign("Abandono (nueva partida)")
         self.cleanup()
@@ -238,7 +243,7 @@ class GameManager:
         game_id = secrets.token_urlsafe(16)
         bot = self.bot_factory()
         bot.start()
-        session = GameSession(game_id, Game(color, clock=self.clock_factory()), bot, self.games_dir, ip)
+        session = GameSession(game_id, Game(color, clock=self.clock_factory(), board=board), bot, self.games_dir, ip)
         self.sessions[game_id] = session
         await session.start()
         log.info("Partida %s: %d en curso", game_id[:8], len(active) + 1)

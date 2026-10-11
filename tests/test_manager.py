@@ -230,3 +230,32 @@ def test_illegal_bot_move_falls_back_to_random(tmp_path):
         await manager.close()
 
     asyncio.run(run())
+
+
+def test_new_game_from_fen_bot_to_move(tmp_path):
+    async def run():
+        bot = FakeBot(["e8d7"])
+        manager = make_manager(tmp_path, [bot])
+        client = FakeClient()
+        session = await manager.new_game("white", "1.1.1.1", fen="4k3/8/8/8/8/8/4P3/4K3 b - - 0 30")
+        session.clients.add(client)
+        await settle(session)
+        state = session.game.state()
+        assert state["moves"] == ["Kd7"]
+        assert state["turn"] == "white"
+        assert "e2e4" in state["legal_moves"]
+        await manager.close()
+
+    asyncio.run(run())
+
+
+def test_bad_fen_keeps_the_previous_game(tmp_path):
+    async def run():
+        manager = make_manager(tmp_path, [FakeBot(), FakeBot()])
+        first = await start(manager, "white")
+        with pytest.raises(GameError):
+            await manager.new_game("white", "1.1.1.1", first, fen="no es un fen")
+        assert first.active
+        await manager.close()
+
+    asyncio.run(run())
