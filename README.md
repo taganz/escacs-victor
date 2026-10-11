@@ -15,18 +15,19 @@ El bot es `bot/main.py` (ver [bot/README.md](bot/README.md)).
    Marca «Add python.exe to PATH» en el instalador.
 2. Descarga el repositorio (`git clone` o «Download ZIP»).
 3. Copia `main.py` y `opening_book.json` en la carpeta `bot/`.
-4. Haz doble clic en `start.bat`.
+4. Haz doble clic en `run.bat`, o desde PowerShell escribe `.\run.bat`
+   (en PowerShell hace falta el `.\` delante).
    La primera vez crea el entorno virtual e instala las dependencias.
    Después abre el navegador en http://localhost:8000.
 
 Para pararlo, cierra la ventana negra o pulsa Ctrl+C en ella.
 
-Si actualizas `requirements.txt`, borra la carpeta `.venv` y vuelve a ejecutar `start.bat`.
+Si actualizas `requirements.txt`, borra la carpeta `.venv` y vuelve a ejecutar `run.bat`.
 
 ### Jugar desde otro equipo de casa
 
 ```
-start.bat --host 0.0.0.0
+.\run.bat --host 0.0.0.0
 ```
 
 Y abre `http://<IP del PC>:8000` desde el otro equipo. Puede que Windows
