@@ -320,6 +320,10 @@ function sendMove(uci) {
 function askPromotion(from, to) {
   const box = $("promotion");
   const white = game().user_color === "white";
+  // The picker opens on pointerdown, so the click that ends that same press can
+  // land on it and close it at once. Only clicks that start on the picker count.
+  let pressed = false;
+  box.onpointerdown = () => (pressed = true);
   box.replaceChildren();
   for (const p of ["q", "r", "b", "n"]) {
     const button = document.createElement("button");
@@ -328,12 +332,14 @@ function askPromotion(from, to) {
     button.appendChild(pieceSvg(white ? p.toUpperCase() : p));
     button.onclick = (e) => {
       e.stopPropagation();
+      if (!pressed) return;
       box.hidden = true;
       sendMove(from + to + p);
     };
     box.appendChild(button);
   }
   box.onclick = () => {
+    if (!pressed) return;
     box.hidden = true;
     selected = null;
     renderBoard();
