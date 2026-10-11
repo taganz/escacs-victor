@@ -3,13 +3,13 @@ import textwrap
 
 import chess
 
-from server.bot_runner import KIND_MAIN, KIND_RANDOM, BotRunner, bot_time_limit, has_choose_move
+from server.bot_runner import KIND_RANDOM, BotRunner, bot_time_limit, has_choose_move
 
-FAKE_MAIN = textwrap.dedent('''
+FAKE_BOT = textwrap.dedent('''
     import json
     import chess
 
-    with open("opening_book.json", encoding="utf-8") as f:   # relative path, like the real main.py
+    with open("opening_book.json", encoding="utf-8") as f:   # relative path, like the real vicescacs.py
         BOOK = json.load(f)
 
     def choose_move(board, time_limit):
@@ -24,10 +24,10 @@ FAKE_MAIN = textwrap.dedent('''
 
 
 def test_has_choose_move(tmp_path):
-    path = tmp_path / "main.py"
+    path = tmp_path / "vicescacs.py"
     path.write_text("def best_move(board, depth):\n    pass\n", encoding="utf-8")
     assert not has_choose_move(path)
-    path.write_text(FAKE_MAIN, encoding="utf-8")
+    path.write_text(FAKE_BOT, encoding="utf-8")
     assert has_choose_move(path)
     assert not has_choose_move(tmp_path / "missing.py")
     assert BotRunner(tmp_path / "missing.py").kind == KIND_RANDOM
@@ -42,12 +42,12 @@ def test_bot_time_limit():
 def test_runs_main_py_in_a_separate_process(tmp_path):
     bot_dir = tmp_path / "bot"
     bot_dir.mkdir()
-    (bot_dir / "main.py").write_text(FAKE_MAIN, encoding="utf-8")
+    (bot_dir / "vicescacs.py").write_text(FAKE_BOT, encoding="utf-8")
     start = "rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq -"
     (bot_dir / "opening_book.json").write_text(f'{{"{start}": {{"g1f3": 1}}}}', encoding="utf-8")
 
-    runner = BotRunner(bot_dir / "main.py")
-    assert runner.kind == KIND_MAIN
+    runner = BotRunner(bot_dir / "vicescacs.py")
+    assert not runner.provisional
 
     async def run():
         runner.start()

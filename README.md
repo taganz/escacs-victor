@@ -7,14 +7,14 @@ Juega al ajedrez contra un bot en el navegador.
 - Puedes rendirte o empezar una partida nueva.
 - Al terminar, la partida se guarda en `games/partida_AAAA-MM-DD_HHMM.pgn`.
 
-El bot es `bot/main.py` (ver [bot/README.md](bot/README.md)).
+El bot es `bot/vicescacs.py` (ver [bot/README.md](bot/README.md)).
 
 ## Instalación en Windows
 
 1. Instala [Python](https://www.python.org/downloads/) 3.10 o posterior.
    Marca «Add python.exe to PATH» en el instalador.
 2. Descarga el repositorio (`git clone` o «Download ZIP»).
-3. Copia `main.py` y `opening_book.json` en la carpeta `bot/`.
+3. Copia `vicescacs.py` y `opening_book.json` en la carpeta `bot/`.
 4. Haz doble clic en `run.bat`, o desde PowerShell escribe `.\run.bat`
    (en PowerShell hace falta el `.\` delante).
    La primera vez crea el entorno virtual e instala las dependencias.
@@ -47,7 +47,7 @@ Variables de entorno opcionales:
 
 | Variable | Por defecto | Para qué |
 |---|---|---|
-| `ESCACS_BOT_FILE` | `bot/main.py` | Usar otro fichero de bot |
+| `ESCACS_BOT_FILE` | `bot/vicescacs.py` | Usar otro fichero de bot |
 | `ESCACS_GAMES_DIR` | `games/` | Dónde se guardan los PGN |
 
 ## Cómo funciona
@@ -69,7 +69,7 @@ Variables de entorno opcionales:
 | `server/game.py` | Reglas de la partida: turnos, final, resultado |
 | `server/clock.py` | Reloj con incremento |
 | `server/manager.py` | Partida en curso, turno del bot, caída de bandera |
-| `server/bot_runner.py` | Ejecuta `bot/main.py` en otro proceso |
+| `server/bot_runner.py` | Ejecuta `bot/vicescacs.py` en otro proceso |
 | `server/pgn_writer.py` | Genera el `.pgn` |
 | `server/app.py` | Servidor web y WebSocket |
 | `static/` | Página web |

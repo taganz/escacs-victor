@@ -1,11 +1,11 @@
 """Runs the bot in a separate process, so the server and the clocks keep
 working while it thinks.
 
-The bot is `bot/main.py`. The server only needs this function from it:
+The bot is `bot/vicescacs.py`. The server only needs this function from it:
 
     def choose_move(board: chess.Board, time_limit: float) -> chess.Move
 
-While `bot/main.py` does not define it, a provisional bot that plays random
+While `bot/vicescacs.py` does not define it, a provisional bot that plays random
 legal moves is used instead.
 """
 
@@ -25,9 +25,9 @@ import chess
 log = logging.getLogger(__name__)
 
 ROOT = Path(__file__).resolve().parent.parent
-BOT_FILE = Path(os.environ.get("ESCACS_BOT_FILE", ROOT / "bot" / "main.py"))
+BOT_FILE = Path(os.environ.get("ESCACS_BOT_FILE", ROOT / "bot" / "vicescacs.py"))
 
-KIND_MAIN = "main"
+KIND_BOT = "bot"
 KIND_RANDOM = "random"
 
 
@@ -65,7 +65,7 @@ def _load_engine(kind: str, path: str):
         _engine = _random_choose_move
         return _engine
     bot_dir = os.path.dirname(path)
-    # main.py opens opening_book.json relative to the working directory.
+    # vicescacs.py opens opening_book.json relative to the working directory.
     os.chdir(bot_dir)
     sys.path.insert(0, bot_dir)
     spec = importlib.util.spec_from_file_location("bot_engine", path)
@@ -93,7 +93,7 @@ class BotRunner:
     def __init__(self, bot_file: Path = BOT_FILE, kind: Optional[str] = None):
         self.bot_file = Path(bot_file)
         if kind is None:
-            kind = KIND_MAIN if has_choose_move(self.bot_file) else KIND_RANDOM
+            kind = KIND_BOT if has_choose_move(self.bot_file) else KIND_RANDOM
         self.kind = kind
         self._pool = None
         self._pending: set[asyncio.Future] = set()
