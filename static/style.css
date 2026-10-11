@@ -149,7 +149,14 @@ body {
   padding: 0;
 }
 .promotion button:hover { background: #fff; box-shadow: 0 0 0 3px var(--accent); }
-.promotion svg { width: 100%; height: 100%; }
+.promotion button .piece {
+  /* Not the board's absolutely positioned piece: one per button. */
+  position: static;
+  display: block;
+  width: 100%;
+  height: 100%;
+  cursor: pointer;
+}
 
 /* --- Side panel --- */
 
