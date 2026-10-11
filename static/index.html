@@ -1,0 +1,67 @@
+<!doctype html>
+<html lang="es">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Escacs Victor</title>
+  <link rel="icon" href="data:,">
+  <link rel="stylesheet" href="style.css">
+</head>
+<body>
+  <main class="layout">
+    <section class="board-column">
+      <div class="player-bar" id="bar-top">
+        <span class="player-name" id="name-top">Bot</span>
+        <span class="thinking" id="thinking" hidden>pensando…</span>
+        <span class="clock" id="clock-top">10:00</span>
+      </div>
+      <div class="board-wrap">
+        <div class="board" id="board" aria-label="Tablero"></div>
+        <div class="promotion" id="promotion" hidden></div>
+      </div>
+      <div class="player-bar" id="bar-bottom">
+        <span class="player-name" id="name-bottom">user</span>
+        <span class="clock" id="clock-bottom">10:00</span>
+      </div>
+    </section>
+
+    <aside class="side">
+      <div class="banner" id="provisional" hidden>
+        Bot provisional: <code>bot/main.py</code> todavía no tiene <code>choose_move</code>, así que juega al azar.
+      </div>
+      <div class="status" id="status">Conectando…</div>
+      <ol class="moves" id="moves"></ol>
+      <div class="result" id="result" hidden>
+        <div class="result-score" id="result-score"></div>
+        <div class="result-reason" id="result-reason"></div>
+        <div class="result-file" id="result-file"></div>
+      </div>
+      <div class="buttons">
+        <button type="button" id="btn-resign">Rendirse</button>
+        <button type="button" id="btn-new" class="primary">Nueva partida</button>
+      </div>
+      <label class="fen">
+        <span>FEN</span>
+        <input id="fen" readonly>
+      </label>
+    </aside>
+  </main>
+
+  <dialog id="color-dialog">
+    <form method="dialog">
+      <h2>¿Con qué color quieres jugar?</h2>
+      <p>10 minutos por jugador, más 5 segundos por jugada.</p>
+      <div class="color-choices">
+        <button value="white" class="choice"><svg viewBox="0 0 40 40"><use href="pieces.svg#wk"/></svg>Blancas</button>
+        <button value="random" class="choice"><span class="random-icon">?</span>Al azar</button>
+        <button value="black" class="choice"><svg viewBox="0 0 40 40"><use href="pieces.svg#bk"/></svg>Negras</button>
+      </div>
+      <button value="cancel" class="link" id="color-cancel">Cancelar</button>
+    </form>
+  </dialog>
+
+  <div class="toast" id="toast" hidden></div>
+
+  <script src="app.js"></script>
+</body>
+</html>
